@@ -1406,6 +1406,32 @@ class SE3(SO3):
         :SymPy: supported
         """
         return smb.tr2adjoint(self.A)
+    
+    def Ad_inv(self) -> R6x6:
+        r"""
+        Inverse adjoint of SE(3)
+
+        :return: inverse adjoint matrix
+        :rtype: ndarray(6,6)
+
+        ``SE3.Ad_inv`` is the 6x6 inverse adjoint matrix
+
+        If spatial velocity :math:`\nu = (v_x, v_y, v_z, \omega_x, \omega_y, \omega_z)^T`
+        and the SE(3) represents the pose of {B} relative to {A},
+        ie. :math:`{}^A {\bf T}_B`, and the inverse adjoint is :math:`\mathbf{A}^{-1}` then
+        :math:`{}^{B}\!\nu = \mathbf{A}^{-1} {}^{A}\!\nu`.
+
+        .. warning:: Do not use this method to map velocities
+            between robot base and end-effector frames - use ``jacob()``.
+
+        .. note:: Use this method to map velocities between two frames on
+            the same rigid-body.
+
+        :Reference: Robotics, Vision & Control for Python, Section 3.1, P. Corke, Springer 2023.
+        :seealso: SE3.jacob, Twist.ad, :func:`~spatialmath.base.tr2jac`
+        :SymPy: supported
+        """
+        return smb.tr2adjoint_inv(self.A)
 
     def jacob(self) -> R6x6:
         r"""

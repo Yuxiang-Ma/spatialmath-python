@@ -2734,7 +2734,58 @@ def tr2adjoint(T):
     else:
         raise ValueError("bad argument")
 
+def tr2adjoint_inv(T):
+    r"""
+    Inverse adjoint matrix
 
+    :param T: SE(3) or SO(3) matrix
+    :type T: ndarray(4,4) or ndarray(3,3)
+    :return: inverse adjoint matrix
+    :rtype: ndarray(6,6) or ndarray(3,3)
+
+    Computes an inverse adjoint matrix that maps the Lie algebra between frames.
+
+    .. math:
+
+        Ad(\mat{T}) \vec{X} X = \vee \left( \mat{T} \skew{\vec{X} \mat{T}^{-1} \right)
+
+    where :math:`\mat{T} \in \SE3`.
+
+    ``tr2jac(T)`` is an adjoint matrix (6x6) that maps spatial velocity or
+    differential motion between frame {B} to frame {A} which are attached to the
+    same moving body.  The pose of {B} relative to {A} is represented by the
+    homogeneous transform T = :math:`{}^A {\bf T}_B`.
+
+    .. runblock:: pycon
+
+        >>> from spatialmath.base import tr2adjoint_inv, trotx
+        >>> T = trotx(0.3, t=[4,5,6])
+        >>> tr2adjoint_inv(T)
+
+    :Reference:
+        - Robotics, Vision & Control for Python, Section 3, P. Corke, Springer 2023.
+        - `Lie groups for 2D and 3D Transformations <http://ethaneade.com/lie.pdf>_
+
+    :SymPy: supported
+    """
+
+    Z = np.zeros((3, 3), dtype=T.dtype)
+    if T.shape == (3, 3):
+        # SO(3) adjoint
+        R = T
+        return R.T
+    elif T.shape == (4, 4):
+        # SE(3) adjoint
+        (R, t) = tr2rt(T)
+        # fmt: off
+        return np.block([
+                    [R.T, -R.T @ skew(t)], 
+                    [Z, R.T]
+                ])
+        # fmt: on
+    else:
+        raise ValueError("bad argument")
+    
 def rodrigues(w: ArrayLike3, theta: Optional[float] = None) -> SO3Array:
     r"""
     Rodrigues' formula for 3D rotation
